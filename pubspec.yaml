@@ -1,0 +1,87 @@
+name: flipino
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  carousel_slider: ^5.0.0
+  image_picker: ^1.0.7
+  image_picker_for_web: ^3.0.6
+  shared_preferences: ^2.2.0
+  percent_indicator: ^4.2.3
+  http: ^1.3.0  # Updated to the latest compatible version
+  supabase_flutter: ^2.3.3
+  flutter_dotenv: ^5.2.1  # Added for environment variables
+  camera: ^0.10.0+1
+  permission_handler: ^11.0.1
+  fl_chart: ^0.65.0
+  syncfusion_flutter_charts: ^19.3.55
+  charts_flutter: ^0.12.0
+  uuid: ^4.3.3
+  video_player: ^2.8.1
+  postgres: ^2.4.1
+  url_launcher: ^6.2.5
+  connectivity_plus: ^5.0.2
+  flutter_inappwebview: 6.1.5
+ 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/videos/
+    - .env
+    - assets/FLIPino Logo.png
+    - assets/1dance.jpg
+    - assets/2dance.jpg
+    - assets/3dance.jpg
+    - assets/kuratsa.jpeg
+    - assets/subli.jpg
+    - assets/sayaw sa cuyo.jpg
+    - assets/maglalatik.jpg
+    - assets/carinosa.jpeg
+    - assets/asik.jpg
+    - assets/flipino_dance_bg.jpg
+    - assets/bg.jpeg
+    - assets/profile1.jpeg
+    - assets/profile2.jpeg
+    - assets/profile3.jpeg
+    - assets/profile4.jpeg
+    - assets/dancefigure.png
+    - assets/kunday.png
+    - assets/tinikling.jpg
+    - assets/singkil.jpeg
+    - assets/pandanggo.jpeg
+    - assets/folk_banner.jpeg
+    - assets/binungey.jpeg
+    - assets/sua_ku_sua.jpeg
+    - assets/tiklos.jpeg
+    - assets/IndakLogo.png
+    - assets/default.jpg
+    - assets/figure.png
+    - assets/Kuratsa.jpg
+    - assets/awards.png
+    - assets/binungeybg.png
+    - assets/indak8.jpg
+    - assets/
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/FLIPinoNLogo.png"

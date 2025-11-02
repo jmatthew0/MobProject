@@ -1,0 +1,163 @@
+-- Users Table (Updated)
+CREATE TABLE users (
+    id UUID PRIMARY KEY, -- No DEFAULT
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    profile_picture_url TEXT DEFAULT 'default_profile_picture_url'
+    -- Removed is_student and role columns
+);
+
+create table dances (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users(id) not null,
+    title varchar(50) not null,
+    history text not null,
+    description text not null,
+    main_video_url text not null,
+    created_at timestamptz not null default now()
+);
+
+create table dance_figures (
+    id uuid primary key default gen_random_uuid(),
+    dance_id uuid references dances(id) on delete cascade,
+    video_url text not null,	
+    position int not null,
+    created_at timestamptz not null default now()
+);
+
+create table dance_images (
+    id uuid primary key default gen_random_uuid(),
+    dance_id uuid references dances(id) on delete cascade,
+    image_url text not null,
+    position int not null,
+    created_at timestamptz not null default now()
+);
+
+-- Figures Table
+CREATE TABLE figures (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    dance_id UUID REFERENCES dances(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    step_count INTEGER,
+    video_url TEXT,
+    image_url TEXT,
+    created_at TIMESTAMP DEFAULT current_timestamp
+);
+
+-- Progress Table
+CREATE TABLE progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    dance_id UUID REFERENCES dances(id) ON DELETE CASCADE,
+    figure_id UUID REFERENCES figures(id) ON DELETE CASCADE,
+    score INTEGER,
+    progress_percentage DECIMAL(5,2),
+    attempts INTEGER,
+    last_attempt TIMESTAMP DEFAULT current_timestamp
+);
+
+-- User History Table
+CREATE TABLE user_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    dance_id UUID REFERENCES dances(id) ON DELETE CASCADE,
+    figure_id UUID REFERENCES figures(id) ON DELETE CASCADE,
+    score INTEGER,
+    attempted_at TIMESTAMP DEFAULT current_timestamp
+);
+
+-- User Videos Table
+
+-- Classes Table
+
+-- DROP class_students Table (Deprecated)
+DROP TABLE IF EXISTS class_students;
+
+-- Create class_members Table (New)
+
+
+-- Class-Dances Table
+CREATE TABLE class_dances (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
+    dance_id UUID REFERENCES dances(id) ON DELETE CASCADE,
+    "order" INTEGER -- "order" is a reserved word
+);
+
+-- Indexes for new table relationships
+CREATE INDEX idx_class_members_class_id ON class_members(class_id);
+CREATE INDEX idx_class_members_user_id ON class_members(user_id);
+CREATE INDEX idx_class_dances_class_id ON class_dances(class_id);
+CREATE INDEX idx_class_dances_dance_id ON class_dances(dance_id);
+
+-- Adjustments to Functions and Triggers (if needed for migration)
+
+-- Example of a function to migrate data if necessary
+-- You may need a function to migrate `class_students` data to `class_members` before dropping the table.
+
+-- Trigger and Policy Updates (Assumed no change to trigger functions unless required)
+
+-- Enable RLS on the users table and set policies
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+
+-- Users Policy for Select and Update (unchanged)
+CREATE POLICY "Users can read their own profile"
+ON public.users
+FOR SELECT
+USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile"
+ON public.users
+FOR UPDATE
+USING (auth.uid() = id);
+
+-- Allow only the system (trigger) to INSERT into the users table
+CREATE POLICY "Allow insert for new users via trigger"
+ON public.users
+FOR INSERT
+WITH CHECK (auth.uid() = id);
+
+
+
+
+-- Function to insert into your users table when a new auth user is created
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.users (id, email, username, created_at)
+  values (new.id, new.email, '', now());
+  return new;
+end;
+$$ language plpgsql security definer;
+
+-- Trigger to call the function after a new user is created in auth.users
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute procedure public.handle_new_user();
+
+
+-- Allow authenticated users to upload
+CREATE POLICY "Authenticated users can upload"
+ON storage.objects
+FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'dances');
+
+
+CREATE TABLE user_feedback (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    figure_name VARCHAR(100) NOT NULL,
+    rating INTEGER CHECK (rating >= 0 AND rating <= 5),
+    submitted_at TIMESTAMP DEFAULT current_timestamp
+);
+
+
+
+-- Add this to your migration script
+ALTER TABLE dance_figures ADD COLUMN figure_number INT;
+
+ALTER TABLE user_history
+ALTER COLUMN score TYPE DECIMAL(5,2);
+
